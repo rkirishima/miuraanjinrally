@@ -1,0 +1,40 @@
+{
+  "id": "/",
+  "name": "MIURA ANJIN RALLY 2026",
+  "short_name": "按針ラリー",
+  "description": "三浦按針ラリー2026 — 三浦半島を舞台にした歴史と冒険のバイクラリー。FELICITY × Royal Enfield主催。",
+  "theme_color": "#2a2925",
+  "background_color": "#f5f3ed",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "/",
+  "scope": "/",
+  "lang": "ja",
+  "categories": ["sports", "travel", "navigation"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

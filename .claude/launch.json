@@ -1,0 +1,24 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Next.js Dev Server",
+      "runtimeExecutable": "/opt/homebrew/opt/node@25/bin/node",
+      "runtimeArgs": ["./node_modules/.bin/next", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "Next.js Production Preview",
+      "runtimeExecutable": "/opt/homebrew/opt/node@25/bin/node",
+      "runtimeArgs": ["./node_modules/.bin/next", "start"],
+      "port": 3000
+    },
+    {
+      "name": "immunity-lab-dev",
+      "runtimeExecutable": "/opt/homebrew/opt/node@25/bin/node",
+      "runtimeArgs": ["./node_modules/.bin/next", "dev", "--port", "3100"],
+      "cwd": "/Users/s02297/免疫ラボWEB",
+      "port": 3100
+    }
+  ]
+}

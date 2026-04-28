@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Font variable wiring ──────────────────────────────────────────────── */
+:root {
+  /* next/font injects these via CSS variables */
+  --font-display: var(--font-cormorant), "Cormorant Garamond", serif;
+  --font-jp:      var(--font-shippori), "Shippori Mincho", serif;
+  --font-mono:    var(--font-jetbrains), "JetBrains Mono", monospace;
+  --font-body:    var(--font-inter), Inter, "Noto Sans JP", sans-serif;
+
+  /* Sand palette */
+  --rally-bg:       #f5f3ed;
+  --rally-surf:     #faf9f5;
+  --rally-card:     #ffffff;
+  --rally-ink:      #2a2925;
+  --rally-ink2:     #6b6860;
+  --rally-sea:      #5a8ba3;
+  --rally-sea2:     #a8c5d6;
+  --rally-moss:     #7da892;
+  --rally-mossBg:   #e8f0e8;
+  --rally-cinnabar: #a85a3a;
+  --rally-rule:     rgba(42, 41, 37, 0.10);
+}
+
+/* ─── Tailwind font-family utilities ────────────────────────────────────── */
+/* These complement tailwind.config.ts fontFamily declarations */
+.font-display { font-family: var(--font-display) !important; }
+.font-jp      { font-family: var(--font-jp) !important; }
+.font-mono    { font-family: var(--font-mono) !important; }
+
+@layer base {
+  body {
+    background-color: var(--rally-bg);
+    color: var(--rally-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .rally-container {
+    @apply max-w-md mx-auto;
+  }
+
+  /* Eyebrow label utility */
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--rally-ink2);
+    font-family: var(--font-body);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .safe-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Writing mode for vertical JP text */
+  .writing-vertical {
+    writing-mode: vertical-rl;
+  }
+}
+
+/* ─── Hanko stamp animation ─────────────────────────────────────────────── */
+@keyframes stamp-in {
+  0%   { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(1.12) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg);    opacity: 1; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.animate-stamp-in  { animation: stamp-in  1.5s ease-out forwards; }
+.animate-pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: var(--rally-surf); }
+::-webkit-scrollbar-thumb { background: var(--rally-rule); border-radius: 2px; }
