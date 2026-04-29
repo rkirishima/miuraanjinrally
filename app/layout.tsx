@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   publisher: 'FELICITY',
   category: 'event',
   verification: {
-    google: 'dcb745c53de0144d',
+    google: 'hn03RKciUXx6tf17BX8JKWR6ujgV9T4y4gDxcmdrqZ8',
   },
   manifest: '/manifest.json',
   appleWebApp: {
