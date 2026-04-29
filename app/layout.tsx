@@ -47,6 +47,9 @@ export const metadata: Metadata = {
   creator: 'FELICITY',
   publisher: 'FELICITY',
   category: 'event',
+  verification: {
+    google: 'dcb745c53de0144d',
+  },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
