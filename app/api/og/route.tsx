@@ -1,6 +1,4 @@
 import { ImageResponse } from 'next/og'
-import { readFileSync } from 'fs'
-import { join } from 'path'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -21,11 +19,9 @@ async function fetchJapaneseFont(): Promise<ArrayBuffer | null> {
   }
 }
 
-export async function GET() {
-  // Load compressed background image from disk
-  const imgBuffer = readFileSync(join(process.cwd(), 'public/images/cover-og.jpg'))
-  const imgSrc = `data:image/jpeg;base64,${imgBuffer.toString('base64')}`
+const BASE_URL = 'https://anjinrally.com'
 
+export async function GET() {
   // Load Japanese font (subset — only chars we use)
   const fontData = await fetchJapaneseFont()
 
@@ -45,7 +41,7 @@ export async function GET() {
         {/* Background photo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={imgSrc}
+          src={`${BASE_URL}/images/cover-og.jpg`}
           alt=""
           style={{
             position: 'absolute',
