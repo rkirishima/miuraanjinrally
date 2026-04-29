@@ -69,7 +69,7 @@ export const metadata: Metadata = {
       '三浦半島を舞台にした、歴史と冒険のバイクラリー。2026年6月20-21日開催。FELICITY × Royal Enfieldが贈るGPSスタンプラリー。6つのチェックポイントを制覇せよ。',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/api/og',
         width: 1200,
         height: 630,
         alt: 'MIURA ANJIN RALLY 2026 — 三浦半島GPSスタンプラリー',
@@ -82,7 +82,7 @@ export const metadata: Metadata = {
     title: 'MIURA ANJIN RALLY 2026 | 三浦按針ラリー',
     description:
       '三浦半島を舞台にした、歴史と冒険のバイクラリー。2026年6月20-21日開催。FELICITY × Royal Enfieldが贈るGPSスタンプラリー。',
-    images: ['/og-image.jpg'],
+    images: ['/api/og'],
   },
   robots: {
     index: true,
