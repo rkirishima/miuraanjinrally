@@ -221,7 +221,7 @@ export default function HomePage() {
       url: 'https://anjinrally.com',
     },
     url: 'https://anjinrally.com',
-    image: 'https://anjinrally.com/api/og',
+    image: 'https://anjinrally.com/images/og-image.jpg',
     isAccessibleForFree: true,
     inLanguage: 'ja',
   }
