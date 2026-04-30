@@ -100,6 +100,19 @@ export async function POST(request: NextRequest) {
     pin?: string
   }
 
+  // ── Capacity check ──────────────────────────────────────────────────────────
+  const MAX_PARTICIPANTS = 150
+  const admin = createAdminClient()
+  const { count: currentCount } = await admin
+    .from('participants')
+    .select('*', { count: 'exact', head: true })
+  if ((currentCount ?? 0) >= MAX_PARTICIPANTS) {
+    return NextResponse.json(
+      { error: '定員（150名）に達したため、現在エントリーを締め切っています。' },
+      { status: 409 }
+    )
+  }
+
   // ── Validation ──────────────────────────────────────────────────────────────
   if (!rider_name?.trim()) {
     return NextResponse.json({ error: 'ライダー名は必須です' }, { status: 400 })
@@ -129,7 +142,6 @@ export async function POST(request: NextRequest) {
 
   // ── Insert ──────────────────────────────────────────────────────────────────
   try {
-    const admin = createAdminClient()
     const { rider_number } = await insertParticipant(admin, {
       pin_hash: pinHash,
       rider_name: rider_name.trim(),
