@@ -26,6 +26,7 @@ type FormData = {
   bikeMake: string
   bikeModel: string
   bikeYear: string
+  plannedDay: 'sat' | 'sun' | 'both' | 'undecided' | ''
   emergencyName: string
   emergencyPhone: string
   emergencyRelation: string
@@ -126,6 +127,7 @@ export default function RegisterPage() {
     bikeMake:          '',
     bikeModel:         '',
     bikeYear:          '',
+    plannedDay:        '',
     emergencyName:     '',
     emergencyPhone:    '',
     emergencyRelation: '',
@@ -220,6 +222,7 @@ export default function RegisterPage() {
           motorcycle_year:   form.bikeYear ? parseInt(form.bikeYear) : null,
           emergency_contact: form.emergencyName.trim(),
           emergency_phone:   form.emergencyPhone.trim(),
+          planned_day:       form.plannedDay || null,
           // Send user-chosen PIN if complete; server falls back to random if omitted
           pin:               pinStr.length === 4 ? pinStr : undefined,
         }),
@@ -488,6 +491,40 @@ export default function RegisterPage() {
                   min="1950"
                   max="2026"
                 />
+              </Field>
+
+              <Field labelJP="参加予定日（任意・参考まで）" labelEN="PLANNED DAY">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {([
+                    { value: 'sat',       label: '6/20（土）' },
+                    { value: 'sun',       label: '6/21（日）' },
+                    { value: 'both',      label: '両日参加' },
+                    { value: 'undecided', label: '未定・天気次第' },
+                  ] as const).map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => update('plannedDay', value)}
+                      style={{
+                        padding: '12px 8px',
+                        borderRadius: 10,
+                        border: `1.5px solid ${form.plannedDay === value ? T.sea : T.rule}`,
+                        background: form.plannedDay === value ? `${T.sea}12` : T.card,
+                        color: form.plannedDay === value ? T.sea : T.ink2,
+                        fontSize: 13,
+                        fontWeight: form.plannedDay === value ? 600 : 400,
+                        cursor: 'pointer',
+                        fontFamily: '"Shippori Mincho", serif',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: T.ink2, marginTop: 6, fontFamily: '"Shippori Mincho", serif' }}>
+                  後から変わっても大丈夫です。運営の参考にさせていただきます。
+                </div>
               </Field>
 
               <button

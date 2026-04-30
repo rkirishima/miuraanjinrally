@@ -27,6 +27,7 @@ async function insertParticipant(
     motorcycle_year: number | null
     emergency_contact: string | null
     emergency_phone: string | null
+    planned_day: string | null
   }
 ): Promise<{ rider_number: string; id: string }> {
   const MAX_RETRIES = 10
@@ -43,7 +44,7 @@ async function insertParticipant(
 
     const { data, error } = await admin
       .from('participants')
-      .insert({ rider_number: riderNumber, ...payload })
+        .insert({ rider_number: riderNumber, ...payload } as never)
       .select('id, rider_number')
       .single()
 
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
     motorcycle_year,
     emergency_contact,
     emergency_phone,
+    planned_day,
     pin: userPin,
   } = body as {
     rider_name?: string
@@ -97,6 +99,7 @@ export async function POST(request: NextRequest) {
     motorcycle_year?: number
     emergency_contact?: string
     emergency_phone?: string
+    planned_day?: string
     pin?: string
   }
 
@@ -150,6 +153,7 @@ export async function POST(request: NextRequest) {
       motorcycle_year: motorcycle_year ?? null,
       emergency_contact: emergency_contact.trim(),
       emergency_phone: emergency_phone.trim(),
+      planned_day: planned_day ?? null,
     })
 
     return NextResponse.json({
