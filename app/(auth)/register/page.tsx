@@ -23,6 +23,7 @@ const T = {
 
 type FormData = {
   riderName: string
+  email: string
   bikeMake: string
   bikeModel: string
   bikeYear: string
@@ -124,6 +125,7 @@ export default function RegisterPage() {
   }, [regOpen])
   const [form,      setForm]      = useState<FormData>({
     riderName:         '',
+    email:             '',
     bikeMake:          '',
     bikeModel:         '',
     bikeYear:          '',
@@ -172,6 +174,14 @@ export default function RegisterPage() {
         setError('ライダー名は50文字以内で入力してください')
         return false
       }
+      if (!form.email.trim()) {
+        setError('メールアドレスを入力してください')
+        return false
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+        setError('有効なメールアドレスを入力してください')
+        return false
+      }
       if (!form.bikeMake.trim() || !form.bikeModel.trim()) {
         setError('バイクのメーカーとモデルを入力してください')
         return false
@@ -217,6 +227,7 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           rider_name:        form.riderName.trim(),
+          email:             form.email.trim(),
           motorcycle_make:   form.bikeMake.trim(),
           motorcycle_model:  form.bikeModel.trim(),
           motorcycle_year:   form.bikeYear ? parseInt(form.bikeYear) : null,
@@ -454,6 +465,18 @@ export default function RegisterPage() {
                   value={form.riderName}
                   onChange={(e) => update('riderName', e.target.value)}
                   placeholder="山田 太郎"
+                  style={inputStyle}
+                  required
+                />
+              </Field>
+
+              <Field labelJP="メールアドレス" labelEN="EMAIL">
+                <input
+                  type="email"
+                  inputMode="email"
+                  value={form.email}
+                  onChange={(e) => update('email', e.target.value)}
+                  placeholder="taro@example.com"
                   style={inputStyle}
                   required
                 />
