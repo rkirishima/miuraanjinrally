@@ -705,6 +705,36 @@ export default function RegisterPage() {
           {/* ── STEP 2: Emergency contact ── */}
           {step === 2 && (
             <div>
+              {/* Section header */}
+              <div style={{ marginBottom: 22 }}>
+                <div style={{
+                  fontFamily: '"Shippori Mincho", serif',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: T.ink,
+                  marginBottom: 4,
+                }}>
+                  緊急連絡先
+                </div>
+                <div style={{
+                  fontFamily: '"Cormorant Garamond", serif',
+                  fontStyle: 'italic',
+                  fontSize: 12,
+                  color: T.ink2,
+                }}>
+                  Emergency Contact
+                </div>
+                <div style={{
+                  fontFamily: '"Shippori Mincho", serif',
+                  fontSize: 11,
+                  color: T.ink2,
+                  marginTop: 8,
+                  lineHeight: 1.7,
+                }}>
+                  万が一の際に連絡できる方の情報をご記入ください。
+                </div>
+              </div>
+
               <Field labelJP="氏名" labelEN="FULL NAME">
                 <input
                   type="text"
