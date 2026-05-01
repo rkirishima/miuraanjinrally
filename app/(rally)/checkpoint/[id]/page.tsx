@@ -407,6 +407,7 @@ export default function CheckpointPage({ params }: { params: { id: string } }) {
   )
   const [apiError, setApiError] = useState<string | null>(null)
   const [stage, setStage] = useState<Stage>('approaching')
+  const [stageReady, setStageReady] = useState(false)  // true once DB status loaded
   const [position, setPosition] = useState<GeolocationResult | null>(null)
   const [distance, setDistance] = useState<number | null>(null)
   const [gpsError, setGpsError] = useState<string | null>(null)
@@ -414,6 +415,7 @@ export default function CheckpointPage({ params }: { params: { id: string } }) {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null)
   const [shuffledChoices, setShuffledChoices] = useState<string[]>([])
   const [quizAttempts, setQuizAttempts] = useState(0)
+  const [error, setError] = useState<string | null>(null)
   const [isUpdatingGps, setIsUpdatingGps] = useState(false)
   const [isArriving, setIsArriving] = useState(false)
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
@@ -431,6 +433,36 @@ export default function CheckpointPage({ params }: { params: { id: string } }) {
     }
     setShuffledChoices(choices)
   }, [checkpoint.quizChoices])
+
+  // ── On mount: restore stage from DB (handles refresh mid-rally) ──────────
+  useEffect(() => {
+    async function initStage() {
+      try {
+        const res = await fetch('/api/participants/me')
+        if (!res.ok) return
+        const data = await res.json()
+        const completions: Array<{
+          checkpoint_id: number
+          arrived_at: string | null
+          quiz_passed_at: string | null
+          completed_at: string | null
+        }> = data.completions ?? []
+        const mine = completions.find((c) => c.checkpoint_id === cpId)
+        if (mine?.completed_at) {
+          setStage('completed')
+        } else if (mine?.quiz_passed_at) {
+          setStage('quiz-passed')
+        } else if (mine?.arrived_at) {
+          setStage('quiz')
+        }
+      } catch {
+        // ignore — default stage = 'approaching' is safe
+      } finally {
+        setStageReady(true)
+      }
+    }
+    initStage()
+  }, [cpId])
 
   // Fetch real checkpoint data from API
   useEffect(() => {
@@ -466,17 +498,30 @@ export default function CheckpointPage({ params }: { params: { id: string } }) {
     fetchCheckpoint()
   }, [cpId])
 
-  // Record arrival at checkpoint via API
-  const recordArrival = useCallback(async (lat?: number, lon?: number) => {
+  /**
+   * Record GPS arrival. Returns:
+   *   'quiz'        → proceed to quiz
+   *   'quiz-passed' → already completed, skip to that stage
+   *   'error'       → arrival failed, show error and stay
+   */
+  const recordArrival = useCallback(async (lat?: number, lon?: number): Promise<'quiz' | 'quiz-passed' | 'error'> => {
     setIsArriving(true)
     try {
-      await fetch(`/api/checkpoints/${cpId}/arrive`, {
+      const res = await fetch(`/api/checkpoints/${cpId}/arrive`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ lat, lon }),
       })
+      const data = await res.json() as { success?: boolean; already_completed?: boolean; error?: string }
+      if (!res.ok) {
+        setGpsError(data.error ?? 'サーバーへの接続に失敗しました')
+        return 'error'
+      }
+      if (data.already_completed) return 'quiz-passed'
+      return 'quiz'
     } catch {
-      // Silently fail — quiz will fall back to local answer check
+      setGpsError('サーバーへの接続に失敗しました。Wi-Fiまたは通信状況を確認してください。')
+      return 'error'
     } finally {
       setIsArriving(false)
     }
@@ -510,25 +555,29 @@ export default function CheckpointPage({ params }: { params: { id: string } }) {
       setSelectedChoice(choice)
       setQuizState('answering')
 
-      // Check answer
-      const isCorrect = async () => {
-        try {
-          const res = await fetch(`/api/checkpoints/${cpId}/quiz`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ answer: choice }),
-          })
-          if (res.ok) {
-            const data = await res.json()
-            return data.correct as boolean
-          }
-        } catch {
-          // Fallback: local check
+      // Check answer — server only, no local fallback
+      let correct = false
+      try {
+        const res = await fetch(`/api/checkpoints/${cpId}/quiz`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answer: choice }),
+        })
+        const data = await res.json() as { correct?: boolean; error?: string }
+        if (!res.ok) {
+          // Surface server error (e.g. not arrived, rally not open)
+          setQuizState('idle')
+          setSelectedChoice(null)
+          setError(data.error ?? 'サーバーエラーが発生しました')
+          return
         }
-        return choice === checkpoint.quizAnswer
+        correct = data.correct ?? false
+      } catch {
+        setQuizState('idle')
+        setSelectedChoice(null)
+        setError('通信エラー。もう一度お試しください。')
+        return
       }
-
-      const correct = await isCorrect()
 
       if (correct) {
         setQuizState('stamping')
@@ -850,8 +899,8 @@ export default function CheckpointPage({ params }: { params: { id: string } }) {
               {inRange && stage === 'at-location' && (
                 <button
                   onClick={async () => {
-                    await recordArrival(position?.lat, position?.lon)
-                    setStage('quiz')
+                    const result = await recordArrival(position?.lat, position?.lon)
+                    if (result !== 'error') setStage(result)
                   }}
                   disabled={isArriving}
                   style={{
@@ -909,6 +958,11 @@ export default function CheckpointPage({ params }: { params: { id: string } }) {
       )}
 
       {/* ── Quiz section (4-choice) ──────────────────────────────────────────── */}
+      {error && stage === 'quiz' && (
+        <div style={{ margin: '16px 20px 0', padding: '12px 16px', background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: 10, color: '#c0392b', fontSize: 13, fontFamily: '"Shippori Mincho", serif', lineHeight: 1.5 }}>
+          {error}
+        </div>
+      )}
       {stage === 'quiz' && (
         <div style={{ padding: '0 20px', marginBottom: 16 }}>
           <div

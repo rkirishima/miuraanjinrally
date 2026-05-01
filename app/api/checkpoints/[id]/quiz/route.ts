@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireSession } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { checkAnswer, getCheckpointStatus } from '@/lib/checkpoints'
+import { isRallyOpen } from '@/lib/event-config'
 
 export const runtime = 'nodejs'
 
@@ -28,6 +29,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(
       { success: false, error: 'ログインが必要です' },
       { status: 401 }
+    )
+  }
+
+  // ── Event date gate (admins bypass) ─────────────────────────────────────
+  if (!isRallyOpen() && !participant.is_admin) {
+    return NextResponse.json(
+      { success: false, error: 'ラリーは6月20日に開始します', rallyNotOpen: true },
+      { status: 403 }
     )
   }
 

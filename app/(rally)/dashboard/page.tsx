@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Navigation } from 'lucide-react'
+import { EVENT_START_AT } from '@/lib/event-config'
 import { formatDistance } from '@/lib/utils'
 import type { CheckpointWithStatus, CheckpointStatus, Participant } from '@/types/database'
 import {
@@ -160,6 +161,7 @@ export default function DashboardPage() {
 
   const completedCount = checkpoints.filter((c) => c.status === 'completed').length
   const totalCount = checkpoints.length || 6
+  const rallyOpen = Date.now() >= EVENT_START_AT.getTime()
 
   const elapsed = useElapsed((participant as (Omit<Participant, 'pin_hash'> & { started_at?: string }) | null)?.started_at)
 
@@ -298,6 +300,34 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
+
+      {/* ── Pre-rally banner (hidden for admins via API, shown here for non-admins) ── */}
+      {!rallyOpen && (
+        <div style={{
+          background: '#2a2925',
+          borderBottom: `1px solid rgba(255,255,255,0.08)`,
+          padding: '20px',
+          textAlign: 'center',
+        }}>
+          <div style={{
+            fontFamily: '"Shippori Mincho", serif',
+            fontSize: 13,
+            color: 'rgba(245,243,237,0.6)',
+            lineHeight: 1.8,
+          }}>
+            チェックポイントは
+            <span style={{ color: '#f5f3ed', fontWeight: 700 }}>　6月20日（土）　</span>
+            スタート時に解放されます。<br />
+            <span style={{
+              fontFamily: '"Cormorant Garamond", serif',
+              fontStyle: 'italic',
+              fontSize: 12,
+            }}>
+              Checkpoints unlock on the morning of June 20.
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ── Progress bar section ────────────────────────────────────────────── */}
       <div
