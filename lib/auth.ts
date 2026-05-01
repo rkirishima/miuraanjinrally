@@ -57,14 +57,6 @@ export async function loginWithPin(
     throw new Error('PINが正しくありません')
   }
 
-  // Record started_at on first login
-  if (!participant.started_at) {
-    await adminClient
-      .from('participants')
-      .update({ started_at: new Date().toISOString() })
-      .eq('id', participant.id)
-  }
-
   // Return row without the sensitive hash
   const { pin_hash: _omit, ...safeParticipant } = participant
   return safeParticipant
