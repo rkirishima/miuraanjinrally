@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useMemo } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { CompassIcon, Eyebrow } from '@/components/anjin'
 import Link from 'next/link'
@@ -228,6 +228,23 @@ export default function AdminParticipantsPage() {
     { en: 'NOT STARTED',  value: idleCount,     jp: '未出発',    color: C.ink2 },
   ]
 
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const handleDelete = async (p: Participant) => {
+    if (!confirm(`「${p.rider_name}（${p.rider_number}）」を削除しますか？\nこの操作は取り消せません。`)) return
+    setDeletingId(p.id)
+    try {
+      const res = await fetch(`/api/admin/participants/${p.id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? '削除に失敗しました')
+      loadParticipants()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '削除に失敗しました')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   const COLS = [
     { label: 'NO.',     width: 60 },
     { label: 'RIDER',   width: 'auto' as const },
@@ -236,6 +253,7 @@ export default function AdminParticipantsPage() {
     { label: 'STAMPS',  width: 90 },
     { label: 'ELAPSED', width: 90 },
     { label: 'STATUS',  width: 120 },
+    { label: '',        width: 44 },
   ]
 
   return (
@@ -559,6 +577,30 @@ export default function AdminParticipantsPage() {
 
                     {/* STATUS */}
                     <StatusBadge p={p} />
+
+                    {/* DELETE */}
+                    <button
+                      onClick={() => handleDelete(p)}
+                      disabled={deletingId === p.id}
+                      title="削除"
+                      style={{
+                        background: 'none',
+                        border: `1px solid ${C.rule}`,
+                        borderRadius: 6,
+                        padding: '5px 7px',
+                        cursor: deletingId === p.id ? 'not-allowed' : 'pointer',
+                        color: C.cinnabar,
+                        opacity: deletingId === p.id ? 0.4 : 0.6,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'opacity 0.15s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = deletingId === p.id ? '0.4' : '0.6')}
+                    >
+                      <Trash2 size={13} />
+                    </button>
                   </div>
                 )
               })

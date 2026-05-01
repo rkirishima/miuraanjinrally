@@ -101,10 +101,11 @@ const selectStyle: React.CSSProperties = {
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [step,      setStep]      = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error,     setError]     = useState<string | null>(null)
-  const [pin,       setPin]       = useState(['', '', '', ''])
+  const [step,        setStep]        = useState(1)
+  const [isLoading,   setIsLoading]   = useState(false)
+  const [error,       setError]       = useState<string | null>(null)
+  const [pin,         setPin]         = useState(['', '', '', ''])
+  const [successData, setSuccessData] = useState<{ rider_number: string; pin: string } | null>(null)
   const [countdown, setCountdown] = useState('')
   const [regOpen,   setRegOpen]   = useState(() => Date.now() >= REGISTRATION_OPEN_AT.getTime())
 
@@ -243,7 +244,7 @@ export default function RegisterPage() {
       // Store PIN in sessionStorage (never in URL — not in history/logs/referrer)
       sessionStorage.setItem('anjin_new_pin', data.pin)
       sessionStorage.setItem('anjin_new_rider', data.rider_number)
-      router.push('/login?registered=true')
+      setSuccessData({ rider_number: data.rider_number, pin: data.pin })
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : '登録に失敗しました。もう一度お試しください。')
     } finally {
@@ -397,8 +398,133 @@ export default function RegisterPage() {
 
         <div style={{ position: 'relative', zIndex: 1 }}>
 
+          {/* ── Success screen ── */}
+          {successData && (
+            <div style={{ textAlign: 'center', paddingTop: 8 }}>
+              {/* Compass icon */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+                <CompassIcon size={56} color={T.moss} strokeWidth={1} />
+              </div>
+
+              <div style={{
+                fontFamily: '"Shippori Mincho", serif',
+                fontSize: 22,
+                fontWeight: 700,
+                color: T.ink,
+                marginBottom: 6,
+              }}>
+                登録完了
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-cormorant, "Cormorant Garamond", serif)',
+                fontStyle: 'italic',
+                fontSize: 14,
+                color: T.ink2,
+                marginBottom: 28,
+              }}>
+                Welcome to the rally.
+              </div>
+
+              {/* Rider number */}
+              <div style={{
+                background: T.ink,
+                borderRadius: 14,
+                padding: '24px 20px 20px',
+                marginBottom: 12,
+              }}>
+                <div style={{
+                  fontSize: 10,
+                  letterSpacing: '0.24em',
+                  textTransform: 'uppercase',
+                  color: `${T.bg}70`,
+                  marginBottom: 10,
+                }}>
+                  Rider Number
+                </div>
+                <div style={{
+                  fontFamily: 'var(--font-cormorant, "Cormorant Garamond", serif)',
+                  fontSize: 52,
+                  fontWeight: 700,
+                  color: T.bg,
+                  letterSpacing: '0.06em',
+                  lineHeight: 1,
+                }}>
+                  {successData.rider_number}
+                </div>
+              </div>
+
+              {/* PIN */}
+              <div style={{
+                background: T.surf,
+                border: `1px solid ${T.rule}`,
+                borderRadius: 14,
+                padding: '20px',
+                marginBottom: 24,
+              }}>
+                <div style={{
+                  fontSize: 10,
+                  letterSpacing: '0.24em',
+                  textTransform: 'uppercase',
+                  color: T.ink2,
+                  marginBottom: 10,
+                }}>
+                  4-Digit PIN
+                </div>
+                <div style={{
+                  fontFamily: 'var(--font-cormorant, "Cormorant Garamond", serif)',
+                  fontSize: 44,
+                  fontWeight: 600,
+                  color: T.sea,
+                  letterSpacing: '0.2em',
+                  lineHeight: 1,
+                }}>
+                  {successData.pin}
+                </div>
+                <div style={{
+                  fontFamily: '"Shippori Mincho", serif',
+                  fontSize: 11,
+                  color: T.ink2,
+                  marginTop: 10,
+                  lineHeight: 1.7,
+                }}>
+                  このPINはログインに必要です。<br />
+                  登録メールにも記載されています。
+                </div>
+              </div>
+
+              <div style={{
+                fontFamily: '"Shippori Mincho", serif',
+                fontSize: 12,
+                color: T.ink2,
+                lineHeight: 1.8,
+                marginBottom: 28,
+              }}>
+                6月20日（土）・21日（日）<br />
+                三浦半島でお会いしましょう。
+              </div>
+
+              {/* CTA */}
+              <button
+                onClick={() => router.push('/login?registered=true')}
+                style={{
+                  width: '100%',
+                  background: T.ink,
+                  color: T.bg,
+                  padding: '18px',
+                  borderRadius: 12,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                ログインへ進む →
+              </button>
+            </div>
+          )}
+
           {/* ── Registration not yet open ── */}
-          {!regOpen && (
+          {!successData && !regOpen && (
             <div style={{ textAlign: 'center', paddingTop: 20 }}>
               <div style={{ fontFamily: '"Shippori Mincho", serif', fontSize: 13, color: T.ink2, marginBottom: 28, lineHeight: 1.8 }}>
                 参加登録は<strong style={{ color: T.ink }}>5月1日 0:00</strong>より<br />早い者勝ちで受付開始です。
@@ -440,7 +566,7 @@ export default function RegisterPage() {
           )}
 
           {/* ── Registration form (only shown when open) ── */}
-          {regOpen && <>
+          {!successData && regOpen && <>
 
           {/* Error message */}
           {error && (
