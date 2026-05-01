@@ -37,11 +37,12 @@ async function insertParticipant(
   const MAX_RETRIES = 10
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    // Count existing rows to derive the next number.
+    // Count only R### riders (excludes system accounts like ADMIN, T000).
     // On conflict we simply add 1 and retry — safe because rider_number is UNIQUE.
     const { count } = await admin
       .from('participants')
       .select('*', { count: 'exact', head: true })
+      .like('rider_number', 'R%')
 
     const nextNum = (count ?? 0) + 1 + attempt // offset on retry
     const riderNumber = `R${String(nextNum).padStart(3, '0')}`
